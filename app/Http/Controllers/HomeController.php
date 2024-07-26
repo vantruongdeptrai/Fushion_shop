@@ -2,7 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ProductVariant;
+use App\Models\ProductColor;
+use App\Models\ProductSize;
 use App\Models\Product;
 
 use Illuminate\Http\Request;
@@ -34,5 +35,13 @@ class HomeController extends Controller
     public function listProduct(){
         $list_product = Product::paginate(10);
         return view('user.product-list',compact('list_product'));
+    }
+    public function detail($slug)
+    {
+        $product = Product::query()->with('variants')->where('slug', $slug)->first();
+        $colors = ProductColor::query()->pluck('name', 'id')->all();
+        $sizes = ProductSize::query()->pluck('name', 'id')->all();
+
+        return view('user.product-detail', compact('product', 'colors', 'sizes'));
     }
 }

@@ -9,14 +9,14 @@ class CartController extends Controller
 {
     //
     public function list() {
-        // $cart = session('cart');
+        $cart = session('cart');
 
-        // $totalAmount = 0;
-        // foreach ($cart as $item) {
-        //     $totalAmount += $item['quantity'] * ($item['price_sale'] ?: $item['price_regular']);
-        // }
+        $totalAmount = 0;
+        foreach ($cart as $item) {
+            $totalAmount += $item['quantity'] * ($item['price_sale'] ?: $item['price_regular']);
+        }
 
-        return view('user.cart-list');
+        return view('user.cart-list', compact('totalAmount'));
     }
 
     public function add()
@@ -24,9 +24,9 @@ class CartController extends Controller
         $product = Product::query()->findOrFail(\request('product_id'));
         $productVariant = ProductVariant::query()
             ->with(['color', 'size'])
-//            ->where('product_id', \request('product_id'))
-//            ->where('size_id', \request('size_id'))
-//            ->where('color_id', \request('color_id'))
+           ->where('product_id', \request('product_id'))
+           ->where('product_size_id', \request('product_size_id'))
+           ->where('product_color_id', \request('product_color_id'))
             ->where([
                 'product_id' => \request('product_id'),
                 'product_size_id' => \request('product_size_id'),
@@ -34,19 +34,18 @@ class CartController extends Controller
             ])
             ->firstOrFail();
         
-        // if (!isset(session('cart')[$productVariant->id] ) ) {
-        //     $data = $product->toArray()
-        //         + $productVariant->toArray()
-        //         + ['quantity' => \request('quantity')];
+            if (!isset(session('cart')[$productVariant->id] ) ) {
+                $data = $product->toArray()
+                    + $productVariant->toArray()
+                    + ['quantity' => \request('quantity')];
 
-        //     session()->put('cart.' . $productVariant->id,  $data);
-        // } else {
-        //     $data = session('cart')[$productVariant->id];
-        //     $data['quantity'] = \request('quantity');
+                session()->put('cart.' . $productVariant->id,  $data);
+            } else {
+                $data = session('cart')[$productVariant->id];
+                $data['quantity'] = \request('quantity');
 
-        //     session()->put('cart.' . $productVariant->id,  $data);
-        // }
-
+                session()->put('cart.' . $productVariant->id,  $data);
+            }
         return redirect()->route('cart.list');
     }
 }

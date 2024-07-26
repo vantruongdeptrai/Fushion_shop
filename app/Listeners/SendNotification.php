@@ -29,7 +29,7 @@ class SendNotification implements ShouldQueue
             $message->to('dovantruong033@gmail.com', 'Tutorials Point')->subject
                ('Laravel Basic Testing Mail');
             
-         });
-         echo "Basic Email Sent. Check your inbox.";
+        });
+        echo "Basic Email Sent. Check your inbox.";
     }
 }

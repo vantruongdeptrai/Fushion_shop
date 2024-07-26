@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\CatelogueController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\OrderController;
+use App\Events\OrderCreated;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -24,6 +25,20 @@ use App\Http\Controllers\OrderController;
 |
 */
 //#9VLLLRG8
+
+Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/product-list', [HomeController::class, 'listProduct'])->name('product-list');
+
+Route::get('product/{slug}', [ProductController::class, 'detail'])->name('product.detail');
+
+// Mua bán hàng
+
+Route::get('cart/list', [CartController::class, 'list'])->name('cart.list');
+Route::post('cart/add', [CartController::class, 'add'])->name('cart.add');
+Route::get('checkout', [OrderController::class, 'index'])->name('checkout');
+Route::post('order/save', [OrderController::class, 'save'])->name('order.save');
+
+
 Route::get('auth/login', [LoginController::class, 'showFormLogin'])->name('login');
 Route::post('auth/login', [LoginController::class, 'login'])->name('login');
 
@@ -32,7 +47,7 @@ Route::post('auth/logout', [LoginController::class, 'logout'])->name('logout');
 Route::get('auth/register', [RegisterController::class, 'showFormRegister'])->name('register');
 Route::post('auth/register', [RegisterController::class, 'register'])->name('register');
 
-Route::get('/home', [HomeController::class, 'index'])->name('home');
+
 
 Route::prefix('admin')
     ->as('admin.')
@@ -52,22 +67,12 @@ Route::prefix('admin')
         Route::resource('products',ProductController::class);
     });
 
-//Route::get('/', [HomeController::class, 'index'])->name('home');
-Route::get('/product-list', [HomeController::class, 'listProduct'])->name('product-list');
-
-Route::get('product/{slug}', [ProductController::class, 'detail'])->name('product.detail');
-// Mua bán hàng
-Route::get('cart/list', [CartController::class, 'list'])->name('cart.list');
-Route::post('cart/add', [CartController::class, 'add'])->name('cart.add');
-Route::post('order/save', [OrderController::class, 'save'])->name('order.save');
-
-
-Route::get('/',function(){
-    //\App\Events\OrderShipped::dispatch('Okokok');
-    $name='truongdz';
-    $user= new User();
-    $user->email = 'dovantruong033@gmail.com';
-    $user->id = 1;
-    $user->notify(new InvoicePaid($name));
-    dd(1);
-});
+// Route::get('/',function(){
+//     //\App\Events\OrderShipped::dispatch('test email');
+//     // $name='truongdz';
+//     // $user= new User();
+//     // $user->email = 'dovantruong033@gmail.com';
+//     // $user->id = 1;
+//     // $user->notify(new InvoicePaid($name));
+//     // dd(1);
+// });

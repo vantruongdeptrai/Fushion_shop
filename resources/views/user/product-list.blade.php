@@ -45,7 +45,7 @@
                             <div class="col-lg-4">
                                 <div class="product-item">
                                     <div class="product-image">
-                                        <a href="product-detail.html">
+                                        <a href="{{route('product.detail',$item->slug)}}">
                                         <img src="{{ asset('storage/products/' . $item->img_thumbnail) }}" alt="Cover Image">
                                         </a>
                                         <div class="product-action">

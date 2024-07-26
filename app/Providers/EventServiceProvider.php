@@ -2,9 +2,13 @@
 
 namespace App\Providers;
 
+use App\Events\OrderCreated;
 use App\Events\OrderShipped;
+use App\Listeners\LogOrder;
 use App\Listeners\LogOrderShipped;
+use App\Listeners\SenderOrderNotification;
 use App\Listeners\SendNotification;
+use App\Listeners\UpdateStock;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -25,6 +29,11 @@ class EventServiceProvider extends ServiceProvider
         OrderShipped::class => [
             LogOrderShipped::class,
             SendNotification::class
+        ],
+        OrderCreated::class => [
+            SenderOrderNotification::class,
+            UpdateStock::class,
+            LogOrder::class
         ]
     ];
 
