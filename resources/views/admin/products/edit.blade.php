@@ -4,6 +4,16 @@
 @endsection
 
 @section('content')
+@if(session('success'))
+        <div class="alert alert-success">
+            {{session('success')}}
+        </div>
+    @endif
+@if(session('error'))
+    <div class="alert alert-danger">
+        {{session('error')}}
+    </div>
+@endif
     <form action="{{route('admin.products.update',$product->id)}}" method="post" enctype="multipart/form-data">
         @csrf
         @method('PUT')
@@ -156,7 +166,7 @@
                             <div class="col-md-4" id="gallery_default_item">
                             <label for="gallery_default" class="form-label">Image</label>
                             <div class="d-flex">
-                                <input type="file" class="form-control" name="product_galleries[]"
+                                <input type="file" class="form-control" name="galleries[]"
                                         id="gallery_default">
                             </div>
                         </div>
@@ -205,7 +215,7 @@
                 <div class="col-md-4" id="${id}_item">
                     <label for="${id}" class="form-label">Image</label>
                     <div class="d-flex">
-                        <input type="file" class="form-control" name="product_galleries[]" id="${id}">
+                        <input type="file" class="form-control" name="galleries[]" id="${id}">
                         <button type="button" class="btn btn-danger" onclick="removeImageGallery('${id}_item')">
                             <span class="bx bx-trash"></span>
                         </button>

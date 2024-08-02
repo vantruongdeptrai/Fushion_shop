@@ -107,7 +107,19 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.bundle.min.js"></script>
 <script src="{{asset('theme/client/js/lib/easing/easing.min.js')}}"></script>
 <script src="{{asset('theme/client/js/lib/slick/slick.min.js')}}"></script>
-
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.js"></script>
+<script src="{{asset('theme/client/js/main.js')}}"></script>
+<script>
+    $('.main-slider').slick({
+        autoplay: true,
+        dots: true,
+        infinite: true,
+        slidesToShow: 1,
+        slidesToScroll: 1,
+        centerMode: true,
+        variableWidth: true
+    });
+</script>
 <script>
     // Quantity
     $('.qty button').on('click', function () {
@@ -126,7 +138,7 @@
     });
 </script>
 <!-- Template Javascript -->
-<script src="{{asset('theme/client/js/main.js')}}"></script>
+
 </body>
 
 </html>

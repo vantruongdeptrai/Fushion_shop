@@ -5,9 +5,8 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
-use App\Http\Middleware\Authenticate;
-use Illuminate\Support\Facades\Auth;
-class CheckAdminMiddleware
+
+class AdminMiddleware
 {
     /**
      * Handle an incoming request.
@@ -16,11 +15,13 @@ class CheckAdminMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        //dd(Auth::user());
-        if(Auth::check()&& Auth::user()->isAdmin()){
-            return $next($request);
-        }else{
-            abort(403);
+        if (!$request->user()) {
+            return redirect()->route('login');
         }
+        if (auth()->check() && auth()->user()->isAdmin()) {
+            return $next($request);
+        }
+
+        return redirect('login')->with('error', 'Bạn không có quyền truy cập trang này.');
     }
 }

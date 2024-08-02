@@ -18,10 +18,7 @@ class HomeController extends Controller
      *
      * @return void
      */
-    public function __construct()
-    {
-        $this->middleware('auth');
-    }
+    
 
     /**
      * Show the application dashboard.
@@ -31,9 +28,9 @@ class HomeController extends Controller
     public function index()
     {
         $products = Product::query()->with('variants')->get();
-        //$slug = Product::query()->get();
-        //dd($slug);
-        return view('user.home',compact('products'));
+        $catelogues = Catelogue::query()->orderBy('id','desc')->limit(4)->get();  
+        //dd($catelogues);
+        return view('user.home',compact('products','catelogues'));
     }
     public function listProduct(){
         $list_product = Product::simplePaginate(9);

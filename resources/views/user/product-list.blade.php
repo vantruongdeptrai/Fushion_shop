@@ -92,11 +92,7 @@
                         @foreach ($catelogues as $cate)
                             <li><a href="#">{{ $cate->name }}</a></li>
                         @endforeach
-                        <!-- <li><a href="#">Cras sagittis</a><span>(198)</span></li>
-                        <li><a href="#">Vivamus</a><span>(95)</span></li>
-                        <li><a href="#">Fusce vitae</a><span>(48)</span></li>
-                        <li><a href="#">Vestibulum</a><span>(210)</span></li>
-                        <li><a href="#">Proin phar</a><span>(78)</span></li> -->
+                        
                     </ul>
                 </div>
 

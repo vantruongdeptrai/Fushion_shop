@@ -21,21 +21,22 @@ class LoginController extends Controller
         ]);
         //dd(Hash::make('admin'));
         if (Auth::attempt($credentials)) {
-            $request->session()->regenerate();
             if(Auth::user()->isAdmin()){
-                return redirect('/admin');
+                return redirect()->route('dashboard');
+            }else{
+                return back()->with('error','Tài khoản không đủ quyền truy cập !');
             }
-            return redirect()->route('home');
+            
         }
         
         return back()->withErrors([
-            'email' => 'The provided credentials do not match our records.',
+            'email' => 'Tài khoản không tồn tại',
         ])->onlyInput('email');
         
     }
     public function logout(){
         Auth::logout();
         \request()->session()->invalidate();
-        return redirect('auth/login');
+        return redirect('/login');
     }
 }

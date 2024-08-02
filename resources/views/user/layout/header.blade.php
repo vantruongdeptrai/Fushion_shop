@@ -3,18 +3,21 @@
 
 <head>
     <meta charset="utf-8">
-    <title>E Shop - Bootstrap Ecommerce Template</title>
+    <title>Fushion Shop</title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <meta content="Bootstrap Ecommerce Template" name="keywords">
     <meta content="Bootstrap Ecommerce Template Free Download" name="description">
 
     <!-- Favicon -->
-    <link href="img/favicon.ico" rel="icon">
+    <link href="{{asset('theme/client/img/favicon.ico')}}" rel="icon">
 
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,600,700&display=swap" rel="stylesheet">
 
     <!-- CSS Libraries -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.css"/>
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick-theme.min.css"/>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <link href="{{asset('theme/client/lib/slick/slick.css')}}" rel="stylesheet">
@@ -30,7 +33,7 @@
             cursor: pointer;
             transition: background-color 0.3s ease, color 0.3s ease;
         }
-        
+
         .buy-button:hover {
             border: 1px solid #3F69AA;
             background-color: white;
@@ -47,6 +50,7 @@
     </style>
     <!-- Template Stylesheet -->
     <link href="{{asset('theme/client/css/style.css')}}" rel="stylesheet">
+    <script src="{{asset('theme/client/js/main.js')}}"></script>
 </head>
 
 <body>
@@ -57,7 +61,7 @@
                 <div class="col-md-3">
                     <div class="logo">
                         <a href="">
-                            <img src="img/logo.png" alt="Logo">
+                            <img src="{{asset('theme/client/img/logo.png')}}" alt="Logo">
                         </a>
                     </div>
                 </div>
@@ -99,7 +103,7 @@
 
                 <div class="collapse navbar-collapse justify-content-between" id="navbarCollapse">
                     <div class="navbar-nav m-auto">
-                        <a href="index.html" class="nav-item nav-link active">Home</a>
+                        <a href="{{route('home')}}" class="nav-item nav-link active">Home</a>
                         <a href="{{route('product-list')}}" class="nav-item nav-link">Products</a>
                         <div class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Pages</a>
@@ -120,3 +124,4 @@
         </div>
     </div>
     <!-- Header End -->
+    

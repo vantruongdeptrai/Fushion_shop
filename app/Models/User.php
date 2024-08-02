@@ -12,8 +12,8 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
-    CONST TYPE_ADMIN = 'admin';
-    CONST TYPE_MEMBER = 'member';
+    const TYPE_ADMIN = 'admin';
+    const TYPE_MEMBER = 'member';
     /**
      * The attributes that are mass assignable.
      *
@@ -35,7 +35,7 @@ class User extends Authenticatable
         'password',
         'remember_token',
     ];
-    
+
     /**
      * The attributes that should be cast.
      *
@@ -45,8 +45,8 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
-    public function isAdmin(){
-
-        return $this->type === self::TYPE_ADMIN;
+    public function isAdmin()
+    {
+        return $this->type === 'admin'; // hoặc bất kỳ logic nào phù hợp với hệ thống của bạn
     }
 }

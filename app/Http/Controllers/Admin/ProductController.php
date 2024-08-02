@@ -134,9 +134,9 @@ class ProductController extends Controller
             // Tiếp tục xử lý khác nếu cần
         }
         //dd($dataProductTags);
-        return back()->with('success', 'Thêm thành công !');
+        return redirect()->back()->with('success', 'Thêm sản phẩm thành công !');
         //        
-    }
+    } 
 
     /**
      * Display the specified resource.
@@ -164,7 +164,7 @@ class ProductController extends Controller
         $sizes = Size::query()->pluck('name', 'id')->all();
         $tags = Tag::query()->pluck('name', 'id')->all();
         $product = Product::with(['variants', 'tag', 'galleries', 'catelogue'])->findOrFail($product->id);
-        dd($product);
+        
         $allTags = Tag::all(); // Lấy tất cả tags để người dùng chọn
         // dd($product->catelogue);
         return view(self::PATH_VIEW . __FUNCTION__, compact('product', 'tags', 'colors', 'sizes', 'catalogues'));
@@ -264,7 +264,7 @@ class ProductController extends Controller
         $dataProductTags = $request->tags ?? [];
         $product->tag()->sync($dataProductTags);
 
-        return back()->with('success', 'Cập nhật thành công !');
+        return redirect()->back()->with('success', 'Cập nhật sản phẩm thành công !');
     }
 
     /**

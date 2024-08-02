@@ -14,6 +14,7 @@ use App\Http\Controllers\Admin\CatelogueController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\OrderController;
 use App\Events\OrderCreated;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -38,21 +39,21 @@ Route::post('cart/add', [CartController::class, 'add'])->name('cart.add');
 Route::get('checkout', [OrderController::class, 'index'])->name('checkout');
 Route::post('order/save', [OrderController::class, 'save'])->name('order.save');
 
+// // Routes công khai
+Route::get('/login', [LoginController::class, 'showFormLogin'])->name('login');
+Route::post('/login', [LoginController::class, 'login'])->name('login');
+Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+Route::get('/register', [RegisterController::class, 'showFormRegister'])->name('register');
+Route::post('/register', [RegisterController::class, 'register'])->name('register');
 
-Route::get('auth/login', [LoginController::class, 'showFormLogin'])->name('login');
-Route::post('auth/login', [LoginController::class, 'login'])->name('login');
-
-Route::post('auth/logout', [LoginController::class, 'logout'])->name('logout');
-
-Route::get('auth/register', [RegisterController::class, 'showFormRegister'])->name('register');
-Route::post('auth/register', [RegisterController::class, 'register'])->name('register');
-
-
-
+Route::middleware(['auth', 'admin'])->group(function () {
+    Route::get('/admin', [DashboardController::class, 'index'])->name('dashboard');
+});
+// Routes admin được bảo vệ
 Route::prefix('admin')
     ->as('admin.')
+     // Thêm middleware auth và admin
     ->group(function () {
-        Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
         Route::prefix('catalogues')
             ->as('catalogues.')
             ->group(function () {
@@ -64,15 +65,6 @@ Route::prefix('admin')
                 Route::put('update/{id}', [CatelogueController::class, 'update'])->name('update');
                 Route::delete('destroy/{id}', [CatelogueController::class, 'destroy'])->name('destroy');
             });
-        Route::resource('products',ProductController::class);
-    });
 
-// Route::get('/',function(){
-//     //\App\Events\OrderShipped::dispatch('test email');
-//     // $name='truongdz';
-//     // $user= new User();
-//     // $user->email = 'dovantruong033@gmail.com';
-//     // $user->id = 1;
-//     // $user->notify(new InvoicePaid($name));
-//     // dd(1);
-// });
+        Route::resource('products', ProductController::class);
+    });
