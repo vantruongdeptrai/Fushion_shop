@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Catelogue extends Model
 {
     use HasFactory;
+    public $timestamps = false;
     protected $fillable = [
         'name',
         'cover',

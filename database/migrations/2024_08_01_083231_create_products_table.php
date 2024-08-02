@@ -22,7 +22,7 @@ return new class extends Migration
             $table->double('price_sale')->nullable();
             $table->string('description')->nullable();
             $table->text('content')->nullable();
-            $table->string('material')->nullable();
+            $table->string('material')->nullable()->comment('Chất liệu');
             $table->text('user_manual')->nullable()->comment('Hướng dẫn sử dụng');
             $table->unsignedBigInteger('views')->default(0);
             $table->boolean('is_active')->default(true);
@@ -32,14 +32,6 @@ return new class extends Migration
             $table->boolean('is_show_home')->default(false);
             $table->timestamps();
         });
-        Schema::table('product_galleries', function (Blueprint $table) {
-            $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
-        });
-        
-        Schema::table('product_variants', function (Blueprint $table) {
-            $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
-        });
-        
     }
 
     /**

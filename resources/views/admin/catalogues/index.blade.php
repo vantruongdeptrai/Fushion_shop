@@ -73,7 +73,7 @@ List Catelogue
                                             <td>{{$item->id}}</td>
                                             <td>{{$item->name}}</td>
                                             <td>
-                                                <img src="{{ asset('storage/catalogues/' . $item->cover) }}" alt="Cover Image" width="60" height="60">
+                                                <img src="{{ Storage::url($item->cover) }}" alt="Cover Image" width="60" height="60">
                                             </td>
                                             <td>{{$item->created_at}}</td>
                                             <td>{{$item->updated_at}}</td>

@@ -31,7 +31,7 @@
                 
                 <div class="mt-3">
                     <label for="">Price sale</label>
-                    <input type="text" name="price_regular" id="" class="form-control" value="{{$product->price_sale}}">
+                    <input type="text" name="price_sale" id="" class="form-control" value="{{$product->price_sale}}">
                 </div>
                 
             </div>
@@ -60,7 +60,7 @@
                 </div>
                 <div class="mt-3">
                     <label for="catelogue_id" class="form-label">Catelogues</label>
-                    <select type="text" class="form-select" name="catelogue_id" id="catelogue_id">
+                    <select type="text" class="form-select" name="catelogue_id" id="catelogue_id" >
                         @foreach($catalogues as $id => $name)
                             <option value="{{ $id }}">{{ $name }}</option>
                         @endforeach

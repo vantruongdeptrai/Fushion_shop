@@ -11,12 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('order_logs', function (Blueprint $table) {
+        Schema::create('colors', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('order_id');
-            $table->string('status');
-            $table->timestamps();
-            $table->foreign('order_id')->references('id')->on('orders')->onDelete('cascade');
+            $table->string('name');
         });
     }
 
@@ -25,6 +22,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('order_logs');
+        Schema::dropIfExists('colors');
     }
 };

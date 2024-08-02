@@ -14,18 +14,19 @@ return new class extends Migration
         Schema::create('product_variants', function (Blueprint $table) {
             $table->id();
             $table->foreignIdFor(\App\Models\Product::class)->constrained();
-            $table->foreignIdFor(\App\Models\ProductSize::class)->constrained();
-            $table->foreignIdFor(\App\Models\ProductColor::class)->constrained();
-            $table->unsignedBigInteger('quantity')->nullable();
+            $table->foreignIdFor(\App\Models\Size::class)->constrained();
+            $table->foreignIdFor(\App\Models\Color::class)->constrained();
+            $table->unsignedInteger('quantity')->default(0);
             $table->string('image')->nullable();
             $table->timestamps();
-            $table->unique(['product_id','product_size_id','product_color_id'],'product_variants_unique');
+            $table->unique(['product_id', 'size_id', 'color_id'], 'product_variants_unique');
         });
     }
 
     /**
      * Reverse the migrations.
      */
+    
     public function down(): void
     {
         Schema::dropIfExists('product_variants');

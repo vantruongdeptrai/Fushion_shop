@@ -4,6 +4,8 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Carbon\Carbon;
 use App\Models\Catelogue;
 
@@ -15,16 +17,12 @@ class CatelogueSeeder extends Seeder
     public function run(): void
     {
         //
-        // $now = Carbon::now(); // Lấy thời gian hiện tại
-        // for($i=1;$i<8;$i++){
-        //     Catelogue::create([
-        //         'name' => fake(8),
-        //         'cover' => 'catalogues/vKKxcaHHiK5qQCXPgBmVQ8awfgz7Sglh16u8QiZm.jpg',
-        //         'is_active'   => 1,
-        //         'created_at'  => $now,
-        //         'updated_at'  => $now,
-        //     ]);
-        // }
-        Catelogue::factory()->count(7)->create();
+        for ($i = 0; $i < 6; $i++) {
+            DB::table('catelogues')->insert([
+                'name' => Str::random(5),
+                'cover' => 'https://picsum.photos/seed/' . Str::random(5) . '/200/300'
+            ]);
+        }
+        //Catelogue::factory()->count(10)->create();
     }
 }

@@ -26,8 +26,9 @@
                                 <th>Name</th>
                                 <th>Price regular</th>
                                 <th>Price sale</th>
-                                <th>Size</th>
                                 <th>Color</th>
+                                <th>Size</th>
+                                
                                 <th>Quantity</th>
                                 <th>Total</th>
                                 <th>Remove</th>

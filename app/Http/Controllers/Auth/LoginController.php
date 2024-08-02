@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Hash;
 class LoginController extends Controller
 {
     public function showFormLogin(){
+        //dd(Hash::make('12345'));
         return view('auth.login');
     }
     public function login(Request $request){

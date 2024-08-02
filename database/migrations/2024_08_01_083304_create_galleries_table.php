@@ -11,19 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('carts', function (Blueprint $table) {
+        Schema::create('galleries', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(\App\Models\User::class)->constrained();
-            $table->timestamps();
+            $table->foreignIdFor(\App\Models\Product::class)->constrained();
+            $table->string('image');
         });
     }
 
     /**
      * Reverse the migrations.
      */
-
     public function down(): void
     {
-        Schema::dropIfExists('carts');
+        Schema::dropIfExists('galleries');
     }
 };

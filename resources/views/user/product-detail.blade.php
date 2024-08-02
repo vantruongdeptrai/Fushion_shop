@@ -21,9 +21,15 @@
                 <div class="row align-items-center product-detail-top">
                     <div class="col-md-5">
                         <div class="product-slider-single">
-                            <img src="img/product-1.png" alt="Product Image">
-                            <img src="img/product-2.png" alt="Product Image">
-                            <img src="img/product-3.png" alt="Product Image">
+                            @foreach ($product->galleries as $gallery)
+                                @php
+                                    $url = $gallery->image;
+                                    if (!\Str::contains($url, 'http')) {
+                                        $url = \Illuminate\Support\Facades\Storage::url($url);
+                                    }
+                                @endphp
+                                    <img src="{{ $url }}" alt="Product Image">
+                            @endforeach
                         </div>
                     </div>
                     <div class="col-md-7">
@@ -69,7 +75,7 @@
                                     <h4>Quantity:</h4>
                                     <div class="qty">
                                         <button class="btn-minus"><i class="fa fa-minus"></i></button>
-                                        <input type="text" value="1">
+                                        <input type="text" value="1" name="quantity">
                                         <button class="btn-plus"><i class="fa fa-plus"></i></button>
                                     </div>
                                 </div>

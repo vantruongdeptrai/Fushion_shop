@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Catelogue;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class CatelogueController extends Controller
@@ -13,7 +14,7 @@ class CatelogueController extends Controller
      * Display a listing of the resource.
      */
     const PATH_VIEW = 'admin.catalogues.';
-    
+
 
     public function index()
     {
@@ -22,8 +23,8 @@ class CatelogueController extends Controller
         // foreach($data as $item){
         //     dd(asset($item['cover']));
         // }
-        
-        return view(self::PATH_VIEW . __FUNCTION__,compact('data'));
+
+        return view(self::PATH_VIEW . __FUNCTION__, compact('data'));
     }
 
     /**
@@ -32,7 +33,7 @@ class CatelogueController extends Controller
     public function create()
     {
         //
-        return view(self::PATH_VIEW.__FUNCTION__);
+        return view(self::PATH_VIEW . __FUNCTION__);
 
     }
 
@@ -42,18 +43,27 @@ class CatelogueController extends Controller
     public function store(Request $request)
     {
         //
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'cover' => 'required|image|mimes:png,jpg,svg,gif,jpeg|max:2048'
+        ]);
+
         $data = $request->all();
-        
-        if($request->hasFile('cover')){
-            $path = 'public/catalogues/' . $request->file('cover')->getClientOriginalName();
-        
-            // Lưu tệp vào thư mục lưu trữ công khai
-            $data['cover']=Storage::put($path, file_get_contents($request->file('cover')));
+        if ($request->hasFile('cover')) {
+           // Lưu tệp vào thư mục public/catalogues và lấy đường dẫn
+            $path = $request->file('cover')->store('catalogues', 'public');
+            // Lưu đường dẫn vào mảng data
+            $data['cover'] = $path;
             
         }
-        
-        Catelogue::query()->create($data);
-        return redirect()->route('admin.catalogues.index');
+
+        $res = Catelogue::query()->create($data);
+        if($res){
+            return back()->with('success','Tạo danh mục thành công !');
+        }else{
+            return back()->with('error','Tạo danh mục thất bại !');
+        }
     }
 
     /**
@@ -63,7 +73,7 @@ class CatelogueController extends Controller
     {
         //
         $model = Catelogue::query()->findOrFail($id);
-        return view('admin.catalogues.detail',compact('model'));
+        return view('admin.catalogues.detail', compact('model'));
 
     }
 
@@ -73,10 +83,10 @@ class CatelogueController extends Controller
     public function edit(string $id)
     {
         //
-        
+
         $model = Catelogue::query()->findOrFail($id);
-        
-        return view('admin.catalogues.edit',compact('model'));
+
+        return view('admin.catalogues.edit', compact('model'));
     }
 
     /**
@@ -85,15 +95,15 @@ class CatelogueController extends Controller
     public function update(Request $request, string $id)
     {
         //
-        $model = Catelogue::query()->findOrFail($id);
+        $model = Catelogue::query()->findOrFail($id); // đối tượng builder
         $request->validate([
-            'name'=>'required|string|max:255',
-            'cover'=>'nullable|image|mimes:jpg,jpeg,png|max:2048',
-            'is_active'=>'sometimes|boolean'
+            'name' => 'required|string|max:255',
+            'cover' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'is_active' => 'sometimes|boolean'
         ]);
-        $model->name=$request->input('name');
-        $model->is_active=$request->input('is_active',0);
-        if($request->hasFile('cover')){
+        $model->name = $request->input('name');
+        $model->is_active = $request->input('is_active', 0);
+        if ($request->hasFile('cover')) {
             // Delete old cover if exists
             if ($model->cover) {
                 Storage::delete($model->cover);
@@ -103,11 +113,11 @@ class CatelogueController extends Controller
         }
         // Save the model
         $model->save();
-        
+
         // Redirect with success message
         return redirect()->route('admin.catalogues.index')->with('success', 'Catalogue updated successfully');
     }
-    
+
     /**
      * Remove the specified resource from storage.
      */
