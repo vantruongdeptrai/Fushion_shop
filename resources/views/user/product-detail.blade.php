@@ -18,6 +18,7 @@
     <div class="container">
         <div class="row">
             <div class="col-lg-9">
+                
                 <div class="row align-items-center product-detail-top">
                     <div class="col-md-5">
                         <div class="product-slider-single">
@@ -58,7 +59,7 @@
                                 @foreach($colors as $id => $name)
                                     <div class="form-check">
                                         <input type="radio" class="form-check-input" id="radio_color_{{ $id }}"
-                                            name="product_color_id" value="{{ $id }}">
+                                            name="color_id" value="{{ $id }}">
                                         <label class="form-check-label" for="radio_color_{{ $id }}">{{ $name }}</label>
                                     </div>
                                 @endforeach
@@ -67,16 +68,16 @@
                                 @foreach($sizes as $id => $name)
                                     <div class="form-check">
                                         <input type="radio" class="form-check-input" id="radio_size_{{ $id }}"
-                                            name="product_size_id" value="{{ $id }}">
+                                            name="size_id" value="{{ $id }}">
                                         <label class="form-check-label" for="radio_size_{{ $id }}">{{ $name }}</label>
                                     </div>
                                 @endforeach
                                 <div class="quantity">
                                     <h4>Quantity:</h4>
                                     <div class="qty">
-                                        <button class="btn-minus"><i class="fa fa-minus"></i></button>
+                                        <button class="btn-minus" type="button"><i class="fa fa-minus"></i></button>
                                         <input type="text" value="1" name="quantity">
-                                        <button class="btn-plus"><i class="fa fa-plus"></i></button>
+                                        <button class="btn-plus" type="button"><i class="fa fa-plus"></i></button>
                                     </div>
                                 </div>
                                 <div class="action">

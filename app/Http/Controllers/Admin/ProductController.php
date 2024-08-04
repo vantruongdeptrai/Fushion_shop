@@ -290,7 +290,7 @@ class ProductController extends Controller
         $product = Product::query()->with('variants')->where('slug', $slug)->first();
         $colors = Color::query()->pluck('name', 'id')->all();
         $sizes = Size::query()->pluck('name', 'id')->all();
-
+        
         return view('user.product-detail', compact('product', 'colors', 'sizes'));
     }
 

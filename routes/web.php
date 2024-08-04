@@ -29,9 +29,11 @@ use App\Events\OrderCreated;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/product-list', [HomeController::class, 'listProduct'])->name('product-list');
-
 Route::get('product/{slug}', [ProductController::class, 'detail'])->name('product.detail');
-
+Route::get('/register', [\App\Http\Controllers\LoginController::class, 'register'])->name('user.register');
+Route::post('/register', [\App\Http\Controllers\LoginController::class, 'postRegister'])->name('user.post-register');
+Route::get('/user-login',[\App\Http\Controllers\LoginController::class, 'login'])->name('user.login');
+Route::post('/user-login',[\App\Http\Controllers\LoginController::class, 'postLogin'])->name('user.post-login');
 // Mua bán hàng
 
 Route::get('cart/list', [CartController::class, 'list'])->name('cart.list');
@@ -39,12 +41,18 @@ Route::post('cart/add', [CartController::class, 'add'])->name('cart.add');
 Route::get('checkout', [OrderController::class, 'index'])->name('checkout');
 Route::post('order/save', [OrderController::class, 'save'])->name('order.save');
 
+//thanh toán hóa Đơn
+
+Route::post('/checkout', [OrderController::class, 'checkout'])->name('checkout');
+Route::get('/payment/{order}', [OrderController::class, 'processPayment'])->name('payment.process');
+Route::get('/order/success/{order}', [OrderController::class, 'success'])->name('order.success');
+Route::get('/orders/history', [OrderController::class, 'history'])->name('orders.history');
+
 // // Routes công khai
 Route::get('/login', [LoginController::class, 'showFormLogin'])->name('login');
 Route::post('/login', [LoginController::class, 'login'])->name('login');
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
-Route::get('/register', [RegisterController::class, 'showFormRegister'])->name('register');
-Route::post('/register', [RegisterController::class, 'register'])->name('register');
+
 
 Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/admin', [DashboardController::class, 'index'])->name('dashboard');

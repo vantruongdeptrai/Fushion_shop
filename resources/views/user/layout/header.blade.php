@@ -16,8 +16,10 @@
 
     <!-- CSS Libraries -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.css"/>
-    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick-theme.min.css"/>
+    <link rel="stylesheet" type="text/css"
+        href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.css" />
+    <link rel="stylesheet" type="text/css"
+        href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick-theme.min.css" />
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <link href="{{asset('theme/client/lib/slick/slick.css')}}" rel="stylesheet">
@@ -73,13 +75,24 @@
                 </div>
                 <div class="col-md-3">
                     <div class="user">
-                        <div class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">My Account</a>
-                            <div class="dropdown-menu">
-                                <a href="#" class="dropdown-item">Login</a>
-                                <a href="#" class="dropdown-item">Register</a>
+                        @auth
+                            <div class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">Xin Chào
+                                    {{Auth::user()->name}}</a>
+                                <div class="dropdown-menu">
+                                    <a href="" class="dropdown-item">My Account</a>
+                                    <a href="" class="dropdown-item">Logout</a>
+                                </div>
                             </div>
-                        </div>
+                        @else
+                            <div class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">My Account</a>
+                                <div class="dropdown-menu">
+                                    <a href="{{ route('user.login') }}" class="dropdown-item">Login</a>
+                                    <a href="{{ route('user.register') }}" class="dropdown-item">Register</a>
+                                </div>
+                            </div>
+                        @endauth
                         <div class="cart">
                             <a href="{{route('cart.list')}}"><i class="fa fa-cart-plus"></i></a>
                             <span>(0)</span>
@@ -113,7 +126,6 @@
                                 <a href="cart.html" class="dropdown-item">Cart</a>
                                 <a href="wishlist.html" class="dropdown-item">Wishlist</a>
                                 <a href="checkout.html" class="dropdown-item">Checkout</a>
-                                <a href="login.html" class="dropdown-item">Login & Register</a>
                                 <a href="my-account.html" class="dropdown-item">My Account</a>
                             </div>
                         </div>
@@ -124,4 +136,3 @@
         </div>
     </div>
     <!-- Header End -->
-    
