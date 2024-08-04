@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Catelogue;
 use App\Models\Color;
-use App\Models\ProductGallery;
+use App\Models\Order;
 use App\Models\Size;
 use App\Models\Product;
 
@@ -44,5 +44,10 @@ class HomeController extends Controller
         $colors = Color::query()->pluck('name', 'id')->all();
         $sizes = Size::query()->pluck('name', 'id')->all();
         return view('user.product-detail', compact('product', 'colors', 'sizes'));
+    }
+    public function myAccount(){
+        $user = auth()->user();
+        $orders = Order::where('user_id', $user->id)->with('orderItems')->orderBy('created_at', 'desc')->paginate(10);
+        return view('user.my-account', compact('orders'));
     }
 }

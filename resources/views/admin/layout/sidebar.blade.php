@@ -33,45 +33,33 @@
             <ul class="navbar-nav" id="navbar-nav">
                 <li class="menu-title"><span data-key="t-menu">Menu</span></li>
                 <li class="nav-item">
-                    <a class="nav-link menu-link" href="#sidebarCatalogues" data-bs-toggle="collapse" role="button"
-                       aria-expanded="false" aria-controls="sidebarCatalogues">
-                        <i class="ri-layout-3-line"></i>
+                    <a class="nav-link menu-link"  href="{{ route('admin.catalogues.index') }}">
+                       <i class="fa-solid fa-list"></i>
                         <span data-key="t-layouts">Catalogues</span>
 
                     </a>
-                    <div class="collapse menu-dropdown" id="sidebarCatalogues">
-                        <ul class="nav nav-sm flex-column">
-                            <li class="nav-item">
-                                <a href="{{ route('admin.catalogues.index') }}" class="nav-link"
-                                   data-key="t-horizontal">Lists</a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="{{ route('admin.catalogues.create') }}" class="nav-link"
-                                   data-key="t-horizontal">Create</a>
-                            </li>
-                        </ul>
-                    </div>
+                    
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link menu-link" href="#sidebarProduct" data-bs-toggle="collapse" role="button"
-                       aria-expanded="false" aria-controls="sidebarProduct">
-                        <i class="ri-layout-3-line"></i>
+                    <a class="nav-link menu-link"  href="{{ route('admin.products.index') }}">
+                       <i class="fa-brands fa-product-hunt"></i>
                         <span data-key="t-layouts">Products</span>
-
                     </a>
-                    <div class="collapse menu-dropdown" id="sidebarProduct">
-                        <ul class="nav nav-sm flex-column">
-                            <li class="nav-item">
-                                <a href="{{ route('admin.products.index') }}" class="nav-link"
-                                   data-key="t-horizontal">Lists</a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="" class="nav-link"
-                                   data-key="t-horizontal">Create</a>
-                            </li>
-                        </ul>
-                    </div>
+                    
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link menu-link"  href="{{ route('admin.orders.index') }}">
+                       <i class="fa-brands fa-product-hunt"></i>
+                        <span data-key="t-layouts">Orders</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link menu-link" data-bs-toggle="collapse" role="button"
+                       aria-expanded="false" aria-controls="sidebarProduct">
+                       <i class="fa-brands fa-product-hunt"></i>
+                        <span data-key="t-layouts">Banners maketing</span>
+                    </a>
                 </li> 
             </ul>
         </div>

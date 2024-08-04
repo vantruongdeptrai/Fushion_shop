@@ -80,7 +80,7 @@
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">Xin Chào
                                     {{Auth::user()->name}}</a>
                                 <div class="dropdown-menu">
-                                    <a href="" class="dropdown-item">My Account</a>
+                                    <a href="{{route('my-account')}}" class="dropdown-item">My Account</a>
                                     <a href="" class="dropdown-item">Logout</a>
                                 </div>
                             </div>

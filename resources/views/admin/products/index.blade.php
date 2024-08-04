@@ -38,7 +38,7 @@ List Product
                             </div>
                         </div>
                         <div class="card-header">
-                            <h5 class="card-title mb-0">Basic Datatables</h5>
+                            <h5 class="card-title mb-0">Products</h5>
                         </div>
                         <div class="card-body">
                             <table id="example"

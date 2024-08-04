@@ -34,6 +34,7 @@ Route::get('/register', [\App\Http\Controllers\LoginController::class, 'register
 Route::post('/register', [\App\Http\Controllers\LoginController::class, 'postRegister'])->name('user.post-register');
 Route::get('/user-login',[\App\Http\Controllers\LoginController::class, 'login'])->name('user.login');
 Route::post('/user-login',[\App\Http\Controllers\LoginController::class, 'postLogin'])->name('user.post-login');
+Route::get('/my-account',[HomeController::class, 'myAccount'])->name('my-account');
 // Mua bán hàng
 
 Route::get('cart/list', [CartController::class, 'list'])->name('cart.list');
@@ -75,4 +76,8 @@ Route::prefix('admin')
             });
 
         Route::resource('products', ProductController::class);
+        Route::resource('orders', \App\Http\Controllers\Admin\OrderController::class)->except(['create', 'store', 'edit', 'update']);
+        Route::put('orders/{order}/update-status', [\App\Http\Controllers\Admin\OrderController::class, 'updateStatus'])->name('orders.update-status');
+        Route::get('orders/{order}/invoice', [\App\Http\Controllers\Admin\OrderController::class, 'generateInvoice'])->name('orders.invoice');
+        Route::post('orders/{order}/send-invoice', [\App\Http\Controllers\Admin\OrderController::class, 'sendInvoiceEmail'])->name('orders.send-invoice');
     });

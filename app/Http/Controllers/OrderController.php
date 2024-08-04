@@ -18,8 +18,35 @@ use Illuminate\Support\Facades\DB;
 class OrderController extends Controller
 {
     //
+    public function totalPrice(){
+        if (Auth::check()) {
+            $user = Auth::user();
+            $cart = Cart::where('user_id', $user->id)->with('cartItems')->first();
+            $cartItem = CartItem::where('cart_id', $cart->id)->with('productVariant')->get();
+            $total_price = 0;
+            foreach ($cartItem as $item) {
+                $product_variant_id = $item->productVariant->id;
+
+                $product_variant_items = ProductVariant::where('id', $product_variant_id)->get();
+                //$product_info = Product::where()
+                foreach ($product_variant_items as $product_variants) {
+                    // dd($product_variants->product_id);
+                    $product = Product::where('id', $product_variants->product_id)->get();
+                    //dd($product);   
+                }
+                foreach ($product as $product_item) {
+                    // Tính giá tiền cho từng sản phẩm
+                    $price = $product_item->price_sale * $item->quantity;
+                    // Cộng dồn vào tổng giá tiền
+                    $total_price += $price;
+                }
+            }
+            return $total_price;
+        }
+    }
     public function index()
     {
+
         if (Auth::check()) {
             $user = Auth::user();
             $cart = Cart::where('user_id', $user->id)->with('cartItems')->first();
@@ -35,12 +62,12 @@ class OrderController extends Controller
                     //dd($product);   
                 }
             }
-            return view('user.check-out', compact('cart','product'));
+            return view('user.check-out', compact('cart', 'product'));
         } else {
             $cart = session('cart');
             return view('user.check-out', compact('cart'));
         }
-        
+
     }
     public function save(Request $request)
     {
@@ -48,13 +75,12 @@ class OrderController extends Controller
             $validatedData = $request->validate([
                 'user_name' => 'required|string|max:255',
                 'user_email' => 'required|email|max:255',
-                'user_phone' => 'required|string|max:20',
+                'user_phone' => 'required|string|max:11',
                 'user_address' => 'required|string|max:255',
-                'payment' => 'required|string',
             ]);
 
-            $user = auth()->user();
-            $cart = Cart::where('user_id', $user->id)->with('cartItems.productVariant.product')->first();
+            $user = Auth::user();
+            $cart = Cart::where('user_id', $user->id)->with('cartItems')->first();
 
             if (!$cart || $cart->cartItems->isEmpty()) {
                 return redirect()->back()->with('error', 'Giỏ hàng trống');
@@ -64,42 +90,60 @@ class OrderController extends Controller
 
             try {
                 // Create order
+                
                 $order = new Order();
                 $order->user_id = $user->id;
-                $order->fill($validatedData);
-                $order->total_price = $cart->cartItems->sum(function ($item) {
-                    return $item->quantity * ($item->productVariant->product->price_sale ?? $item->productVariant->product->price_regular);
-                });
+                $order->user_name = $validatedData['user_name'];
+                $order->user_email = $validatedData['user_email'];
+                $order->user_phone = $validatedData['user_phone'];
+                $order->user_address = $validatedData['user_address'];
+                $order->status_order = Order::STATUS_ORDER_PENDING;
+                $order->status_payment = Order::STATUS_PAYMENT_UNPAID;
+                $order->total_price = $this->totalPrice();
+                //dd($order->total_price);
                 $order->save();
 
-                // Create order items
-                foreach ($cart->cartItems as $cartItem) {
-                    $orderItem = new OrderItem();
-                    $orderItem->order_id = $order->id;
-                    $orderItem->product_variant_id = $cartItem->product_variant_id;
-                    $orderItem->quantity = $cartItem->quantity;
-                    $orderItem->product_name = $cartItem->productVariant->product->name;
-                    $orderItem->product_sku = $cartItem->productVariant->product->sku;
-                    $orderItem->product_img_thumbnail = $cartItem->productVariant->product->thumbnail;
-                    $orderItem->product_price_regular = $cartItem->productVariant->product->price_regular;
-                    $orderItem->product_price_sale = $cartItem->productVariant->product->price_sale;
-                    $orderItem->variant_size_name = $cartItem->productVariant->size->name;
-                    $orderItem->variant_color_name = $cartItem->productVariant->color->name;
-                    $orderItem->save();
+                $cartItem = CartItem::where('cart_id', $cart->id)->with('productVariant')->get();
+                
+                foreach ($cartItem as $item) {
+                    $product_variant_id = $item->productVariant->id;
+                    $product_variant_items = ProductVariant::where('id', $product_variant_id)->get();
+                    //$product_info = Product::where()
+                    foreach ($product_variant_items as $product_variants) {
+                        // dd($product_variants->product_id);
+                        $product = Product::where('id', $product_variants->product_id)->get();
+                        //dd($product);   
+                        // Create order items
+                        $orderItem = new OrderItem();
+                        
+                        $orderItem->order_id = $order->id;
+                        $orderItem->product_variant_id = $product_variant_id;
+                        $orderItem->quantity = $item->quantity;
+                        foreach($product as $product_item){
+                            $orderItem->product_name = $product_item->name;
+                            $orderItem->product_sku = $product_item->sku;
+                            $orderItem->product_img_thumbnail = $product_item->thumbnail;
+                            $orderItem->product_price_regular = $product_item->price_regular;
+                            $orderItem->product_price_sale = $product_item->price_sale;
+                        }
+                        $orderItem->variant_size_name = $item->productVariant->size->name;
+                        $orderItem->variant_color_name = $item->productVariant->color->name;
+                        
+                        $orderItem->save();
+                    }
                 }
-
                 // Clear cart
+                
                 CartItem::where('cart_id', $cart->id)->delete();
                 $cart->delete();
 
                 DB::commit();
-
                 // Redirect to payment gateway or show success message
                 return redirect()->route('payment.process', $order->id);
 
             } catch (\Exception $e) {
                 DB::rollback();
-                return redirect()->back()->with('error', 'Có lỗi xảy ra trong quá trình đặt hàng');
+                return back()->with('error', 'Có lỗi xảy ra trong quá trình đặt hàng');
             }
         } else {
             try {
@@ -174,13 +218,13 @@ class OrderController extends Controller
 
     public function success(Order $order)
     {
-        return view('orders.success', compact('order'));
+        return view('user.orders-success', compact('order'));
     }
 
     public function history()
     {
         $user = auth()->user();
         $orders = Order::where('user_id', $user->id)->with('orderItems')->orderBy('created_at', 'desc')->paginate(10);
-        return view('orders.history', compact('orders'));
+        return view('user.orders-history', compact('orders'));
     }
 }

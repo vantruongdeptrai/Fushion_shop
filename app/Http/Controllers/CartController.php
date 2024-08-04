@@ -30,7 +30,9 @@ class CartController extends Controller
                     //dd($product);   
                 }
             }
-            
+            if (!$cart || $cart->cartItems->isEmpty()) {
+                return redirect()->back()->with('error', 'Giỏ hàng trống');
+            }
             return view('user.cart-list', compact('cart','product'));
         }else{
             $cart = session('cart');

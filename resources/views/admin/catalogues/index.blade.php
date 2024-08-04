@@ -5,7 +5,6 @@ List Catelogue
 @endsection
 @section('content1')
 <div class="main-content">
-
     <div class="page-content">
         <div class="container-fluid">
 
@@ -38,7 +37,7 @@ List Catelogue
                             </div>
                         </div>
                         <div class="card-header">
-                            <h5 class="card-title mb-0">Basic Datatables</h5>
+                            <h5 class="card-title mb-0">Catelogues</h5>
                         </div>
                         <div class="card-body">
                             <table id="example"

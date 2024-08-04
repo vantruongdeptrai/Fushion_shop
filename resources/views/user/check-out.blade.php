@@ -14,12 +14,12 @@
 
 
 <!-- Checkout Start -->
-<div class="checkout">
-    <div class="container">
-        <div class="row">
-            <div class="col-7">
-                <form action="{{route('order.save')}}" method="post">
-                    @csrf
+<form action="{{route('order.save')}}" method="post">
+    @csrf
+    <div class="checkout">
+        <div class="container">
+            <div class="row">
+                <div class="col-7">
                     <div class="">
                         <div class="billing-address">
                             <h2>Billing Address</h2>
@@ -32,7 +32,7 @@
                                 <div class="col-12">
                                     <label>E-mail</label>
                                     <input class="form-control" type="text" placeholder="E-mail" name="user_email"
-                                        id="user_email" value="{{ auth()->user()?->emai }}">
+                                        id="user_email" value="{{ auth()->user()?->email }}">
                                 </div>
                                 <div class="col-12">
                                     <label>Phone number</label>
@@ -111,8 +111,6 @@
                         </div>
                     </div>
                     <div class="">
-
-
                         <div class="checkout-payment">
                             <h2>Payment Methods</h2>
                             <div class="payment-methods">
@@ -147,55 +145,80 @@
                                 </div>
                             </div>
                             <div class="checkout-btn">
-                                <button>Place Order</button>
+                                <button type="submit">Place Order</button>
                             </div>
                         </div>
+                        @if(session('success'))
+                            <div class="alert alert-success">
+                                {{session('success')}}
+                            </div>
+                        @endif
+                        @if(session('error'))
+                        <br>
+                            <div class="alert alert-danger">
+                                {{session('error')}}
+                            </div>
+                        @endif
+                        @if ($errors->any())
+                        <br>
+                            <div class="alert alert-danger">
+                                <ul>
+                                    @foreach ($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
                     </div>
-                </form>
-            </div>
-            <div class="col-5">
-                <div class="row">
-                    <div class="checkout-summary">
-                        <div class="checkout-content" style="color:#FFF;">
-                            <h3>Products</h3>
-                            @php
-                                $totalPrice = 0;
-                            @endphp
-                            @foreach ($cart->cartItems as $item)
+                </div>
+
+                <div class="col-5">
+                    <div class="row">
+                        <div class="checkout-summary">
+                            <div class="checkout-content" style="color:#FFF;">
+                                <h3>Products</h3>
+                                @php
+                                    $totalPrice = 0;
+                                @endphp
+                                @foreach ($cart->cartItems as $item)
                                     <div>
-                                        <img src="{{asset($item->productVariant->image)}}" alt="Image"
-                                                    width="60" height="60">
+                                        <img src="{{asset($item->productVariant->image)}}" alt="Image" width="60"
+                                            height="60">
                                         @foreach ($product as $product_item)
                                             Name: <span>{{$product_item->name}}</span>
                                         @endforeach
                                         Color: <span>{{ $item->productVariant->color->name}}</span>
                                         Size: <span>{{ $item->productVariant->size->name }}</sp>
-                                        @php
-                                            // Tính giá tiền cho từng sản phẩm
-                                            $price = $product_item->price_sale * $item->quantity;
-                                            // Cộng dồn vào tổng giá tiền
-                                            $totalPrice += $price;
-                                        @endphp
-                                        @foreach ($product as $product_item)
-                                            <br>Price: <span>{{ number_format($product_item->price_sale * $item->quantity) }} VNĐ</span>
-                                        @endforeach
-                                    </div><br><hr>
-                            @endforeach
-
-                            @if (session()->has('cart'))
-                                @foreach (session('cart') as $item)
-                                    <p>{{$item['name']}} <span>{{$item['price_regular']}}</span></p>
+                                            @php
+                                                // Tính giá tiền cho từng sản phẩm
+                                                $price = $product_item->price_sale * $item->quantity;
+                                                // Cộng dồn vào tổng giá tiền
+                                                $totalPrice += $price;
+                                            @endphp
+                                            @foreach ($product as $product_item)
+                                                <br>Price:
+                                                <span>{{ number_format($product_item->price_sale * $item->quantity) }}
+                                                    VNĐ</span>
+                                            @endforeach
+                                    </div><br>
+                                    <hr>
                                 @endforeach
-                            @endif
-                            <p>Sub Total<span>{{number_format($totalPrice)}} VNĐ</span></p>
-                            <p>Shipping Cost<span>0 VNĐ</span></p>
-                            <h4>Grand Total<span>{{number_format($totalPrice)}} VNĐ</span></h4>
+
+                                @if (session()->has('cart'))
+                                    @foreach (session('cart') as $item)
+                                        <p>{{$item['name']}} <span>{{$item['price_regular']}}</span></p>
+                                    @endforeach
+                                @endif
+                                <p>Sub Total<span>{{number_format($totalPrice)}} VNĐ</span></p>
+                                <p>Shipping Cost<span>0 VNĐ</span></p>
+                                <h4>Grand Total<span>{{number_format($totalPrice)}} VNĐ</span></h4>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
+</form>
 <!-- Checkout End -->
 @endsection
