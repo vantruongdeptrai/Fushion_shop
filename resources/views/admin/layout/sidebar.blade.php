@@ -55,8 +55,7 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link menu-link" data-bs-toggle="collapse" role="button"
-                       aria-expanded="false" aria-controls="sidebarProduct">
+                    <a class="nav-link menu-link" href="{{ route('banners.index') }}">
                        <i class="fa-brands fa-product-hunt"></i>
                         <span data-key="t-layouts">Banners maketing</span>
                     </a>

@@ -6,6 +6,7 @@ use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\Cart;
 use App\Models\CartItem;
+use App\Models\Coupon;
 use Illuminate\Support\Facades\Auth;
 
 use Illuminate\Http\Request;
@@ -18,29 +19,52 @@ class CartController extends Controller
         if(Auth::check()){
             $user = Auth::user();
             $cart = Cart::where('user_id', $user->id)->with('cartItems')->first();
-            $cartItem = CartItem::where('cart_id',$cart->id)->with('productVariant')->get();
+            $total_price = 0;
+            $cartItem = CartItem::where('cart_id',$cart->id)->with(['productVariant.product', 'productVariant.color', 'productVariant.size'])->get();
+            //dd($cartItem);
+            
             foreach($cartItem as $item){
+                //dd($item);
                 $product_variant_id = $item->productVariant->id;
                 
                 $product_variant_items = ProductVariant::where('id',$product_variant_id)->get();
                 //$product_info = Product::where()
+                //dd($product_variant_items);
                 foreach($product_variant_items as $product_variants){
-                    // dd($product_variants->product_id);
+                    // dd($product_variant  s->product_id);
                     $product = Product::where('id',$product_variants->product_id)->get();
                     //dd($product);   
                 }
+                foreach ($product as $product_item) {
+                    // Tính giá tiền cho từng sản phẩm
+                    $price = $product_item->price_sale * $item->quantity;
+                    // Cộng dồn vào tổng giá tiền
+                    $total_price += $price;
+                }
+                
             }
-            if (!$cart || $cart->cartItems->isEmpty()) {
+            
+            $coupon = session('coupon');
+            if ($coupon) {
+                $discountAmount = $this->calculateDiscount($total_price, $coupon);
+                $total_price -= $discountAmount;
+                $coupon['used'] += 1;
+                $coupon->save();
+            }
+            if (!$cart || $cart->cartItems->isEmpty()|| $cart == null) {
                 return redirect()->back()->with('error', 'Giỏ hàng trống');
             }
-            return view('user.cart-list', compact('cart','product'));
+            return view('user.cart-list', compact('cart','product','total_price','user','cartItem'));
         }else{
-            $cart = session('cart');
+            $message = 'Giỏ hàng trống';
+            $user = Auth::user();
+            $cart = session('cart') ?? $message ;
+            //dd($cart);
             // $totalAmount = 0;
             // foreach ($cart as $item) {
             //     $totalAmount += $item['quantity'] * ($item['price_sale'] ?: $item['price_regular']);
             // }
-            return view('user.cart-list');
+            return view('user.cart-list',compact('cart','user','message'));
         }        
     }
 
@@ -115,5 +139,36 @@ class CartController extends Controller
             return redirect()->route('cart.list');
         }
 
+    }
+    public function applyCoupon(Request $request)
+    {
+        $couponCode = $request->input('coupon_code');
+        //dd($couponCode);
+        $coupon = Coupon::where('code', $couponCode)
+                        ->where('is_active', true)
+                        ->where('valid_from', '<=', now())
+                        ->where('valid_to', '>=', now())
+                        ->first();
+        
+        // if (!$coupon) {
+        //     return back()->with('error','Mã giảm giá không hợp lệ');
+        // }
+
+        if ($coupon->usage_limit && $coupon->used >= $coupon->usage_limit) {
+            return back()->with('error','Mã giảm giá đã hết lượt dùng');
+        }
+
+        // Lưu mã giảm giá vào session
+        session(['coupon' => $coupon]);
+
+        return back()->with('success','Áp dụng mã giảm giá thành công');
+    }
+    public function calculateDiscount($totalPrice, Coupon $coupon)
+    {
+        if ($coupon->type === 'fixed') {
+            return $coupon->value;
+        } else {
+            return $totalPrice * ($coupon->value / 100);
+        }
     }
 }

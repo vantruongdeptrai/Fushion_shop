@@ -81,7 +81,12 @@
                                     {{Auth::user()->name}}</a>
                                 <div class="dropdown-menu">
                                     <a href="{{route('my-account')}}" class="dropdown-item">My Account</a>
-                                    <a href="" class="dropdown-item">Logout</a>
+                                    <form id="logout-form" action="{{ route('user.logout') }}" method="POST"
+                                        style="display: none;">
+                                        @csrf
+                                        <button type="submit">Logout</button>
+                                    </form>
+                                    
                                 </div>
                             </div>
                         @else

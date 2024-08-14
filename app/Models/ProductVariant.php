@@ -16,7 +16,7 @@ class ProductVariant extends Model
         'image'
     ];
     public function product(){
-        $this->belongsTo(Product::class);
+        return $this->belongsTo(Product::class);
     } 
     public function size()
     {

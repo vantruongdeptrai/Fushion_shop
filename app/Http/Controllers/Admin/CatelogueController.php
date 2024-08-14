@@ -55,7 +55,6 @@ class CatelogueController extends Controller
             $path = $request->file('cover')->store('catalogues', 'public');
             // Lưu đường dẫn vào mảng data
             $data['cover'] = $path;
-            
         }
 
         $res = Catelogue::query()->create($data);

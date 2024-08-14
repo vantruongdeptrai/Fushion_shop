@@ -60,9 +60,9 @@ class OrderController extends Controller
     {
         $order->load('orderItems');
         $pdf = PDF::loadView('admin.orders.invoice', compact('order'));
-        
+        $pdf->setPaper('A4', 'portrait');
+        $pdf->setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true]);
         Mail::to($order->user_email)->send(new InvoiceMail($order, $pdf));
-
         return redirect()->back()->with('success', 'Hóa đơn đã được gửi qua email.');
     }
 }

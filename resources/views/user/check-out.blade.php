@@ -14,7 +14,7 @@
 
 
 <!-- Checkout Start -->
-<form action="{{route('order.save')}}" method="post">
+<form action="{{route('order.save')}}" method="post" >
     @csrf
     <div class="checkout">
         <div class="container">
@@ -114,19 +114,17 @@
                         <div class="checkout-payment">
                             <h2>Payment Methods</h2>
                             <div class="payment-methods">
-                                <div class="payment-method">
+                                <div class="payment-method" id="payment-form">
                                     <div class="custom-control custom-radio">
-                                        <input type="radio" class="custom-control-input" id="payment-1" name="payment">
-                                        <label class="custom-control-label" for="payment-1">Paypal</label>
+                                        <input type="radio" class="custom-control-input" id="payment-momo" name="payment" value="momo">
+                                        <label class="custom-control-label" for="payment-momo">MoMo</label>
                                     </div>
-
                                 </div>
                                 <div class="payment-method">
                                     <div class="custom-control custom-radio">
                                         <input type="radio" class="custom-control-input" id="payment-2" name="payment">
                                         <label class="custom-control-label" for="payment-2">Payoneer</label>
                                     </div>
-
                                 </div>
 
                                 <div class="payment-method">
@@ -134,7 +132,6 @@
                                         <input type="radio" class="custom-control-input" id="payment-4" name="payment">
                                         <label class="custom-control-label" for="payment-4">Direct Bank Transfer</label>
                                     </div>
-
                                 </div>
                                 <div class="payment-method">
                                     <div class="custom-control custom-radio">
@@ -209,9 +206,9 @@
                                         <p>{{$item['name']}} <span>{{$item['price_regular']}}</span></p>
                                     @endforeach
                                 @endif
-                                <p>Sub Total<span>{{number_format($totalPrice)}} VNĐ</span></p>
+                                <p>Sub Total<span>{{number_format($total_price)}} VNĐ</span></p>
                                 <p>Shipping Cost<span>0 VNĐ</span></p>
-                                <h4>Grand Total<span>{{number_format($totalPrice)}} VNĐ</span></h4>
+                                <h4>Grand Total<span>{{number_format($total_price)}} VNĐ</span></h4>
                             </div>
                         </div>
                     </div>
@@ -221,4 +218,22 @@
     </div>
 </form>
 <!-- Checkout End -->
+<script>
+document.getElementById('payment-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    var selectedPayment = document.querySelector('input[name="payment"]:checked');
+    
+    if (selectedPayment && selectedPayment.value === 'momo') {
+        // Nếu chọn MoMo, gửi form đến route xử lý MoMo
+        this.action = "{{ route('momo.checkout') }}";
+    } else {
+        // Xử lý các phương thức thanh toán khác ở đây
+        alert('Vui lòng chọn MoMo để thanh toán');
+        return;
+    }
+    
+    this.submit();
+});
+</script>
 @endsection

@@ -27,7 +27,13 @@
                     <a class="nav-link" id="address-nav" data-toggle="pill" href="#address-tab" role="tab">Address</a>
                     <a class="nav-link" id="account-nav" data-toggle="pill" href="#account-tab" role="tab">Account
                         Details</a>
-                    <a class="nav-link" href="index.html">Logout</a>
+                        
+                    <a class="nav-link" href="#">
+                        <form action="{{route('user.logout')}}" method="post">
+                            @csrf
+                            <button type="submit" class="btn btn-soft-primary">Logout</button>
+                        </form>
+                    </a>
                 </div>
             </div>
             <div class="col-md-9">
@@ -41,35 +47,43 @@
                     </div>
                     <div class="tab-pane fade" id="orders-tab" role="tabpanel" aria-labelledby="orders-nav">
                         <div class="table-responsive">
-                        @foreach($orders as $order)
-                            <table class="table table-bordered">
-                                <thead class="thead-dark">
-                                    <tr>
-                                        <th>No</th>
-                                        <th>Product</th>
-                                        <th>Date</th>
-                                        <th>Price</th>
-                                        <th>Status</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    
-                                    @foreach($order->orderItems as $item)
+                            @foreach($orders as $order)
+                                <table class="table table-bordered">
+                                    <thead class="thead-dark">
+                                        <tr>
+                                            <th>No</th>
+                                            <th>Date</th>
+                                            <th>Price</th>
+                                            <th>Status</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
                                         <tr>
                                             <td>{{$order->id}}</td>
-                                            <td>{{ $item->product_name }}</td>
                                             <td>{{ $order->created_at->format('d/m/Y H:i') }}</td>
-                                            <td>{{ number_format($item->product_price_sale ?? $item->product_price_regular) }}
+                                            <td>{{ number_format($order->total_price) }}
                                                 VNĐ
                                             </td>
                                             <td>{{$order->status_order}}</td>
-                                            <td><button>View</button></td>
+                                            <td>
+                                                @if ($order->status_order != 'pending')
+                                                    <a href="{{route('orders.history')}}" class="btn"
+                                                        style="background-color:#3F69AA ; color:#fff;">View</a>
+                                                @endif
+                                                
+                                                @if ($order->status_order == 'pending')
+                                                <a href="{{route('orders.history')}}" class="btn"
+                                                    style="background-color:#3F69AA ; color:#fff;">View</a>
+                                                <a href="#" class="btn"
+                                                    style="background-color:#3F69AA ; color:#fff;">Cancel</a>
+                                                @endif
+                                                
+                                            </td>
                                         </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        @endforeach
+                                    </tbody>
+                                </table>
+                            @endforeach
                         </div>
                     </div>
                     <div class="tab-pane fade" id="payment-tab" role="tabpanel" aria-labelledby="payment-nav">

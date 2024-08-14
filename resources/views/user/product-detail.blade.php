@@ -60,7 +60,7 @@
                                     <div class="form-check">
                                         <input type="radio" class="form-check-input" id="radio_color_{{ $id }}"
                                             name="color_id" value="{{ $id }}">
-                                        <label class="form-check-label" for="radio_color_{{ $id }}">{{ $name }}</label>
+                                        <label class="form-check-label" for="radio_color_{{ $id }}"><div style="width: 30px; height:15px; background-color: {{ $name }};"></div></label>
                                     </div>
                                 @endforeach
 
@@ -163,7 +163,7 @@
                     </div>
                 </div>
 
-                <div class="container">
+                <!-- <div class="container">
                     <div class="section-header">
                         <h3>Related Products</h3>
                         <p>
@@ -299,7 +299,7 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </div> -->
             </div>
 
             <div class="col-lg-3">

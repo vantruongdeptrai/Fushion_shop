@@ -17,9 +17,9 @@ class LoginController extends Controller
             'email' => 'required', 'email',
             'password' => 'required|string',
         ]);
+        //dd($request->all());
         if(Auth::attempt(['email'=>$request->email, 'password'=>$request->password])){
             $request->session()->regenerate();
-            
             return redirect()->route('home');
         }else{
             return redirect()->back()->with('error','Đăng nhập không thành công');
@@ -37,7 +37,7 @@ class LoginController extends Controller
         $user = User::query()->create([
             'name'=>$request->name,
             'email'=>$request->email,
-            'password'=> Hash::make($request->email),
+            'password'=> Hash::make($request->password),
         ]);  
         if($user){
             return redirect()->back()->with('success','Đăng ký tài khoản thành công');

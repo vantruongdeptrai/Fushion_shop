@@ -7,7 +7,7 @@ use App\Models\Color;
 use App\Models\Order;
 use App\Models\Size;
 use App\Models\Product;
-
+use Illuminate\Support\Facades\Auth;
 use App\Models\Tag;
 use Illuminate\Http\Request;
 
@@ -27,6 +27,7 @@ class HomeController extends Controller
      */
     public function index()
     {
+        
         $products = Product::query()->with('variants')->get();
         $catelogues = Catelogue::query()->orderBy('id','desc')->limit(4)->get();  
         //dd($catelogues);

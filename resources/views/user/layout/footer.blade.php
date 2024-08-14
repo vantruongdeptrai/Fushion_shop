@@ -6,9 +6,8 @@
                 <div class="footer-widget">
                     <h1>E Shop</h1>
                     <p>
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse sollicitudin rutrum massa.
-                        Suspendisse sollicitudin rutrum massa. Vestibulum porttitor, metus sed pretium elementum, nisi
-                        nibh sodales quam, non lobortis neque felis id mauris.
+                    Welcome to E Shop,
+                     where we provide quality products and dedicated customer service to meet all your needs.
                     </p>
                 </div>
             </div>
@@ -64,15 +63,15 @@
             <div class="col-md-6">
                 <div class="payment-method">
                     <p>We Accept:</p>
-                    <img src="img/payment-method.png" alt="Payment Method" />
+                    <img src="{{asset('theme/client/img/payment-method.png')}}" alt="Payment Method" />
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="payment-security">
                     <p>Secured By:</p>
-                    <img src="img/godaddy.svg" alt="Payment Security" />
-                    <img src="img/norton.svg" alt="Payment Security" />
-                    <img src="img/ssl.svg" alt="Payment Security" />
+                    <img src="{{asset('theme/client/img/godaddy.svg')}}" alt="Payment Security" />
+                    <img src="{{asset('theme/client/img/norton.svg')}}" alt="Payment Security" />
+                    <img src="{{asset('theme/client/img/ssl.svg')}}" alt="Payment Security" />
                 </div>
             </div>
         </div>
@@ -82,19 +81,7 @@
 
 
 <!-- Footer Bottom Start -->
-<div class="footer-bottom">
-    <div class="container">
-        <div class="row">
-            <div class="col-md-6 copyright">
-                <p>Copyright &copy; <a href="https://htmlcodex.com">HTML Codex</a>. All Rights Reserved</p>
-            </div>
 
-            <div class="col-md-6 template-by">
-                <p>Template By <a href="https://htmlcodex.com">HTML Codex</a></p>
-            </div>
-        </div>
-    </div>
-</div>
 <!-- Footer Bottom End -->
 
 

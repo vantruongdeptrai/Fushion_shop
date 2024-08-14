@@ -12,11 +12,15 @@ use App\Models\Product;
 use App\Models\ProductVariant;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
-
+use App\Http\Controllers\CartController;
 use Illuminate\Support\Facades\DB;
-
+use App\Models\Transaction;
+use Illuminate\Support\Facades\Http;
 class OrderController extends Controller
-{
+{   public $cartController;
+    public function __construct(){
+        $this->cartController = new CartController();
+    }
     //
     public function totalPrice(){
         if (Auth::check()) {
@@ -62,12 +66,20 @@ class OrderController extends Controller
                     //dd($product);   
                 }
             }
-            return view('user.check-out', compact('cart', 'product'));
+            $coupon = session('coupon');
+            $total_price = $this->totalPrice();
+            if ($coupon) {
+                $discountAmount = $this->cartController->calculateDiscount($total_price, $coupon);
+                $total_price -= $discountAmount;
+                $coupon['used'] += 1;
+                $coupon->save();
+            }
+            session()->forget('coupon');
+            return view('user.check-out', compact('cart', 'product','total_price'));
         } else {
             $cart = session('cart');
             return view('user.check-out', compact('cart'));
         }
-
     }
     public function save(Request $request)
     {
@@ -139,8 +151,8 @@ class OrderController extends Controller
 
                 DB::commit();
                 // Redirect to payment gateway or show success message
-                return redirect()->route('payment.process', $order->id);
-
+                //return redirect()->route('payment.process', $order->id);
+                return $this->redirectToVNPay($order);
             } catch (\Exception $e) {
                 DB::rollback();
                 return back()->with('error', 'Có lỗi xảy ra trong quá trình đặt hàng');
@@ -196,13 +208,12 @@ class OrderController extends Controller
                 });
 
                 session()->forget('cart');
-
+                
                 return redirect()->route('user.home')->with('success', 'Đặt hàng thành công');
             } catch (\Exception $exception) {
                 return back()->with('error', 'Lỗi đặt hàng');
             }
         }
-
     }
     public function processPayment(Order $order)
     {
@@ -226,5 +237,113 @@ class OrderController extends Controller
         $user = auth()->user();
         $orders = Order::where('user_id', $user->id)->with('orderItems')->orderBy('created_at', 'desc')->paginate(10);
         return view('user.orders-history', compact('orders'));
+    }
+    private function redirectToMoMo(Order $order)
+    {
+        $endpoint = "https://test-payment.momo.vn/v2/gateway/api/create";
+        $partnerCode = 'YOUR_PARTNER_CODE';
+        $accessKey = 'YOUR_ACCESS_KEY';
+        $secretKey = 'YOUR_SECRET_KEY';
+        $orderInfo = "Thanh toán đơn hàng " . $order->id;
+        $amount = $order->total_price;
+        $orderId = $order->id . time(); // Tạo một orderId duy nhất
+        $redirectUrl = route('momo.return');
+        $ipnUrl = route('momo.ipn');
+        $extraData = "";
+
+        $requestId = time() . "";
+        $requestType = "captureWallet";
+        $rawHash = "accessKey=" . $accessKey . "&amount=" . $amount . "&extraData=" . $extraData . "&ipnUrl=" . $ipnUrl . "&orderId=" . $orderId . "&orderInfo=" . $orderInfo . "&partnerCode=" . $partnerCode . "&redirectUrl=" . $redirectUrl . "&requestId=" . $requestId . "&requestType=" . $requestType;
+        $signature = hash_hmac("sha256", $rawHash, $secretKey);
+
+        $data = [
+            'partnerCode' => $partnerCode,
+            'partnerName' => "Test",
+            'storeId' => "MomoTestStore",
+            'requestId' => $requestId,
+            'amount' => $amount,
+            'orderId' => $orderId,
+            'orderInfo' => $orderInfo,
+            'redirectUrl' => $redirectUrl,
+            'ipnUrl' => $ipnUrl,
+            'lang' => 'vi',
+            'extraData' => $extraData,
+            'requestType' => $requestType,
+            'signature' => $signature
+        ];
+
+        $response = Http::post($endpoint, $data);
+        $responseData = $response->json();
+
+        if ($responseData['resultCode'] == 0) {
+            // Lưu thông tin giao dịch
+            Transaction::create([
+                'order_id' => $order->id,
+                'transaction_id' => $orderId,
+                'amount' => $amount,
+                'status' => 'pending',
+            ]);
+
+            return redirect($responseData['payUrl']);
+        }
+
+        return redirect()->back()->with('error', 'Có lỗi xảy ra khi tạo giao dịch MoMo');
+    }
+
+    public function momoReturn(Request $request)
+    {
+        // Xử lý kết quả trả về từ MoMo
+        if ($request->resultCode == '0') {
+            $orderId = $request->orderId;
+            $transactionId = $request->transId;
+            
+            $transaction = Transaction::where('transaction_id', $orderId)->first();
+            if ($transaction) {
+                $transaction->status = 'completed';
+                $transaction->save();
+
+                $order = Order::find($transaction->order_id);
+                $order->status_payment = Order::STATUS_PAYMENT_PAID;
+                $order->save();
+
+                return redirect()->route('order.success', $order->id);
+            }
+        }
+
+        return redirect()->route('order.failure');
+    }
+
+    public function momoIPN(Request $request)
+    {
+        // Xử lý IPN (Instant Payment Notification) từ MoMo
+        $secretKey = 'YOUR_SECRET_KEY'; // Cùng secret key ở trên
+
+        // Kiểm tra chữ ký
+        $rawHash = "accessKey=" . $request->accessKey . "&amount=" . $request->amount . "&extraData=" . $request->extraData . "&ipnUrl=" . $request->ipnUrl . "&orderId=" . $request->orderId . "&orderInfo=" . $request->orderInfo . "&partnerCode=" . $request->partnerCode . "&redirectUrl=" . $request->redirectUrl . "&requestId=" . $request->requestId . "&requestType=" . $request->requestType;
+        $signature = hash_hmac("sha256", $rawHash, $secretKey);
+
+        if ($signature != $request->signature) {
+            return response()->json([
+                'message' => 'Invalid signature',
+            ], 400);
+        }
+        if ($request->resultCode == '0') {
+            $orderId = $request->orderId;
+            $transactionId = $request->transId;
+            
+            $transaction = Transaction::where('transaction_id', $orderId)->first();
+            if ($transaction) {
+                $transaction->status = 'completed';
+                $transaction->save();
+
+                $order = Order::find($transaction->order_id);
+                $order->status_payment = Order::STATUS_PAYMENT_PAID;
+                $order->save();
+            }
+        }
+
+        return response()->json([
+            'message' => 'IPN processed successfully',
+        ]);
     }
 }

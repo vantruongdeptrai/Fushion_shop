@@ -29,6 +29,7 @@
                             {{session('error')}}
                         </div>
                     @endif
+                    
                     <table class="table table-bordered">
                         <thead class="thead-dark">
                             <tr>
@@ -66,56 +67,69 @@
                                     </tr>
                                 @endforeach
                             @endif
-                            @php
-                                $totalPrice = 0;
-                            @endphp
-                            @foreach ($cart->cartItems as $item)
-                                <tr>
-                                    <td><a href="#"><img src="{{asset($item->productVariant->image)}}" alt="Image" width="60" height="60"></a></td>
-                                    @foreach ($product as $product_item)
-                                        <td><a href="#">{{$product_item->name}}</a></td>
-                                        <td>{{ number_format($product_item->price_sale) }} VNĐ</td>
-                                    @endforeach
-                                    <td>{{ $item->productVariant->color->name }}</td>
-                                    <td>{{ $item->productVariant->size->name }}</td>
-                                    <td>
-                                        <div class="qty">
-                                            <button class="btn-minus"><i class="fa fa-minus"></i></button>
-                                            <input type="text" value="{{$item->quantity}}">
-                                            <button class="btn-plus"><i class="fa fa-plus"></i></button>
-                                        </div>
-                                    </td>
-                                    @php
-                                        // Tính giá tiền cho từng sản phẩm
-                                        $price = $product_item->price_sale * $item->quantity;
-                                        // Cộng dồn vào tổng giá tiền
-                                        $totalPrice += $price;
-                                    @endphp
-                                    @foreach ($product as $product_item)
-                                        <td>{{ number_format($product_item->price_sale * $item->quantity) }} VNĐ</td>
-                                    @endforeach
-                                    <td><button><i class="fa fa-trash"></i></button></td>
-                                </tr>
-                            @endforeach
+                            @if(!$user)
+                                <div class="alert alert-danger">
+                                    {{$message}}
+                                </div>
+                            @else
+                                @php
+                                    $totalPrice = 0;
+                                @endphp
+                                
+                                @foreach ($cartItem as $item)
+                                    <tr>
+                                        <td><a href="#"><img src="{{ Storage::url($item->productVariant->image)}}" alt="Image" width="60" height="60"></a></td>
+                                        <td><a href="#">{{$item->productVariant->product->name}}</a></td>
+                                        <td>{{ number_format($item->productVariant->product->price_sale) }} VNĐ</td>
+                                        <td><div style="width: 30px; height:15px; background-color: {{ $item->productVariant->color->name }};"></div></td>
+                                        <td>{{ $item->productVariant->size->name }}</td>
+                                        <td>
+                                            <div class="qty">
+                                                <button class="btn-minus"><i class="fa fa-minus"></i></button>
+                                                <input type="text" value="{{$item->quantity}}">
+                                                <button class="btn-plus"><i class="fa fa-plus"></i></button>
+                                            </div>
+                                        </td>
+                                        @php
+                                            $price = $item->productVariant->product->price_sale * $item->quantity;
+                                            $totalPrice += $price;
+                                        @endphp
+                                        <td>{{ number_format($price) }} VNĐ</td>
+                                        <td>
+                                            <form action="#" method="post" onsubmit="return confirm('Bạn có chắc muốn xóa sản phẩm khỏi giỏ hàng ?')">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button><i class="fa fa-trash"></i></button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            @endif
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
+        @if ($user)
         <div class="row">
             <div class="col-md-6">
                 <div class="coupon">
-                    <input type="text" placeholder="Coupon Code">
-                    <button>Apply Code</button>
+                    <form action="{{route('coupon')}}" method="post">
+                        @csrf
+                        <input type="text" placeholder="Coupon Code" name="coupon_code">
+                        <button type="submit" >Apply Code</button>
+                    </form>
+                    
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="cart-summary">
                     <div class="cart-content">
                         <h3>Cart Summary</h3>
-                        <p>Sub Total<span>{{number_format($totalPrice)}} VNĐ</span></p>
+                        <p>Sub Total<span>{{number_format($total_price)}} VNĐ</span></p>
                         <p>Shipping Cost<span>0 VNĐ</span></p>
-                        <h4>Grand Total<span>{{number_format($totalPrice)}} VNĐ</span></h4>
+                        
+                        <h4>Grand Total<span>{{number_format($total_price)}} VNĐ</span></h4>
                     </div>
                     <div class="cart-btn">
                         <button>Update Cart</button>
@@ -124,6 +138,8 @@
                 </div>
             </div>
         </div>
+        @endif
+        
     </div>
 </div>
 <!-- Cart End -->
