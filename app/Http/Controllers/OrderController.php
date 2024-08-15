@@ -54,7 +54,7 @@ class OrderController extends Controller
         if (Auth::check()) {
             $user = Auth::user();
             $cart = Cart::where('user_id', $user->id)->with('cartItems')->first();
-            $cartItem = CartItem::where('cart_id', $cart->id)->with('productVariant')->get();
+            $cartItem = CartItem::where('cart_id',$cart->id)->with(['productVariant.product', 'productVariant.color', 'productVariant.size'])->get();
             foreach ($cartItem as $item) {
                 $product_variant_id = $item->productVariant->id;
 
@@ -75,7 +75,7 @@ class OrderController extends Controller
                 $coupon->save();
             }
             session()->forget('coupon');
-            return view('user.check-out', compact('cart', 'product','total_price'));
+            return view('user.check-out', compact('cart', 'product','total_price','cartItem'));
         } else {
             $cart = session('cart');
             return view('user.check-out', compact('cart'));
@@ -84,79 +84,80 @@ class OrderController extends Controller
     public function save(Request $request)
     {
         if (Auth::check()) {
+            //dd($request->all());
             $validatedData = $request->validate([
                 'user_name' => 'required|string|max:255',
                 'user_email' => 'required|email|max:255',
                 'user_phone' => 'required|string|max:11',
                 'user_address' => 'required|string|max:255',
             ]);
-
+            
             $user = Auth::user();
             $cart = Cart::where('user_id', $user->id)->with('cartItems')->first();
 
-            if (!$cart || $cart->cartItems->isEmpty()) {
-                return redirect()->back()->with('error', 'Giỏ hàng trống');
-            }
-
-            DB::beginTransaction();
-
-            try {
-                // Create order
-                
-                $order = new Order();
-                $order->user_id = $user->id;
-                $order->user_name = $validatedData['user_name'];
-                $order->user_email = $validatedData['user_email'];
-                $order->user_phone = $validatedData['user_phone'];
-                $order->user_address = $validatedData['user_address'];
-                $order->status_order = Order::STATUS_ORDER_PENDING;
-                $order->status_payment = Order::STATUS_PAYMENT_UNPAID;
-                $order->total_price = $this->totalPrice();
-                //dd($order->total_price);
-                $order->save();
-
-                $cartItem = CartItem::where('cart_id', $cart->id)->with('productVariant')->get();
-                
-                foreach ($cartItem as $item) {
-                    $product_variant_id = $item->productVariant->id;
-                    $product_variant_items = ProductVariant::where('id', $product_variant_id)->get();
-                    //$product_info = Product::where()
-                    foreach ($product_variant_items as $product_variants) {
-                        // dd($product_variants->product_id);
-                        $product = Product::where('id', $product_variants->product_id)->get();
-                        //dd($product);   
-                        // Create order items
-                        $orderItem = new OrderItem();
-                        
-                        $orderItem->order_id = $order->id;
-                        $orderItem->product_variant_id = $product_variant_id;
-                        $orderItem->quantity = $item->quantity;
-                        foreach($product as $product_item){
-                            $orderItem->product_name = $product_item->name;
-                            $orderItem->product_sku = $product_item->sku;
-                            $orderItem->product_img_thumbnail = $product_item->thumbnail;
-                            $orderItem->product_price_regular = $product_item->price_regular;
-                            $orderItem->product_price_sale = $product_item->price_sale;
+            if($request->payment == 'i_bank'){
+                return redirect()->route('vnpay');
+            }else{
+                DB::beginTransaction();
+                try {
+                    // Create order
+                    
+                    $order = new Order();
+                    $order->user_id = $user->id;
+                    $order->user_name = $validatedData['user_name'];
+                    $order->user_email = $validatedData['user_email'];
+                    $order->user_phone = $validatedData['user_phone'];
+                    $order->user_address = $validatedData['user_address'];
+                    $order->status_order = Order::STATUS_ORDER_PENDING;
+                    $order->status_payment = Order::STATUS_PAYMENT_UNPAID;
+                    $order->total_price = $this->totalPrice();
+                    //dd($order->total_price);
+                    $order->save();
+    
+                    $cartItem = CartItem::where('cart_id', $cart->id)->with('productVariant')->get();
+                    
+                    foreach ($cartItem as $item) {
+                        $product_variant_id = $item->productVariant->id;
+                        $product_variant_items = ProductVariant::where('id', $product_variant_id)->get();
+                        //$product_info = Product::where()
+                        foreach ($product_variant_items as $product_variants) {
+                            // dd($product_variants->product_id);
+                            $product = Product::where('id', $product_variants->product_id)->get();
+                            //dd($product);   
+                            // Create order items
+                            $orderItem = new OrderItem();
+                            
+                            $orderItem->order_id = $order->id;
+                            $orderItem->product_variant_id = $product_variant_id;
+                            $orderItem->quantity = $item->quantity;
+                            foreach($product as $product_item){
+                                $orderItem->product_name = $product_item->name;
+                                $orderItem->product_sku = $product_item->sku;
+                                $orderItem->product_img_thumbnail = $product_item->thumbnail;
+                                $orderItem->product_price_regular = $product_item->price_regular;
+                                $orderItem->product_price_sale = $product_item->price_sale;
+                            }
+                            $orderItem->variant_size_name = $item->productVariant->size->name;
+                            $orderItem->variant_color_name = $item->productVariant->color->name;
+                            
+                            $orderItem->save();
                         }
-                        $orderItem->variant_size_name = $item->productVariant->size->name;
-                        $orderItem->variant_color_name = $item->productVariant->color->name;
-                        
-                        $orderItem->save();
                     }
+                    // Clear cart
+                    
+                    CartItem::where('cart_id', $cart->id)->delete();
+                    $cart->delete();
+    
+                    DB::commit();
+                    // Redirect to payment gateway or show success message
+                    //return redirect()->route('payment.process', $order->id);
+                    return $this->redirectToVNPay($order);
+                } catch (\Exception $e) {
+                    DB::rollback();
+                    return back()->with('error', 'Có lỗi xảy ra trong quá trình đặt hàng');
                 }
-                // Clear cart
-                
-                CartItem::where('cart_id', $cart->id)->delete();
-                $cart->delete();
-
-                DB::commit();
-                // Redirect to payment gateway or show success message
-                //return redirect()->route('payment.process', $order->id);
-                return $this->redirectToVNPay($order);
-            } catch (\Exception $e) {
-                DB::rollback();
-                return back()->with('error', 'Có lỗi xảy ra trong quá trình đặt hàng');
             }
+            
         } else {
             try {
                 DB::transaction(function () {
@@ -238,112 +239,78 @@ class OrderController extends Controller
         $orders = Order::where('user_id', $user->id)->with('orderItems')->orderBy('created_at', 'desc')->paginate(10);
         return view('user.orders-history', compact('orders'));
     }
-    private function redirectToMoMo(Order $order)
+    public function redirectToVNPay(Order $order)
     {
-        $endpoint = "https://test-payment.momo.vn/v2/gateway/api/create";
-        $partnerCode = 'YOUR_PARTNER_CODE';
-        $accessKey = 'YOUR_ACCESS_KEY';
-        $secretKey = 'YOUR_SECRET_KEY';
-        $orderInfo = "Thanh toán đơn hàng " . $order->id;
-        $amount = $order->total_price;
-        $orderId = $order->id . time(); // Tạo một orderId duy nhất
-        $redirectUrl = route('momo.return');
-        $ipnUrl = route('momo.ipn');
-        $extraData = "";
+        $vnp_Url = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
+        $vnp_Returnurl = route('vnpay.return');
+        $vnp_TmnCode = "HSKYRL0D";
+        $vnp_HashSecret = "WC3GP5NHLZE23I5EG3VHOAMRX6JJ0OI6";
 
-        $requestId = time() . "";
-        $requestType = "captureWallet";
-        $rawHash = "accessKey=" . $accessKey . "&amount=" . $amount . "&extraData=" . $extraData . "&ipnUrl=" . $ipnUrl . "&orderId=" . $orderId . "&orderInfo=" . $orderInfo . "&partnerCode=" . $partnerCode . "&redirectUrl=" . $redirectUrl . "&requestId=" . $requestId . "&requestType=" . $requestType;
-        $signature = hash_hmac("sha256", $rawHash, $secretKey);
+        $vnp_TxnRef = $order->id;
+        $vnp_OrderInfo = "Thanh toán đơn hàng " . $order->id;
+        $vnp_OrderType = "billpayment";
+        $vnp_Amount = $order->total_price * 100;
+        $vnp_Locale = "VN";
+        $vnp_BankCode = "NCB";
+        $vnp_IpAddr = request()->ip();
 
-        $data = [
-            'partnerCode' => $partnerCode,
-            'partnerName' => "Test",
-            'storeId' => "MomoTestStore",
-            'requestId' => $requestId,
-            'amount' => $amount,
-            'orderId' => $orderId,
-            'orderInfo' => $orderInfo,
-            'redirectUrl' => $redirectUrl,
-            'ipnUrl' => $ipnUrl,
-            'lang' => 'vi',
-            'extraData' => $extraData,
-            'requestType' => $requestType,
-            'signature' => $signature
-        ];
+        $inputData = array(
+            "vnp_Version" => "2.1.0",
+            "vnp_TmnCode" => $vnp_TmnCode,
+            "vnp_Amount" => $vnp_Amount,
+            "vnp_Command" => "pay",
+            "vnp_CreateDate" => date('YmdHis'),
+            "vnp_CurrCode" => "VND",
+            "vnp_IpAddr" => $vnp_IpAddr,
+            "vnp_Locale" => $vnp_Locale,
+            "vnp_OrderInfo" => $vnp_OrderInfo,
+            "vnp_OrderType" => $vnp_OrderType,
+            "vnp_ReturnUrl" => $vnp_Returnurl,
+            "vnp_TxnRef" => $vnp_TxnRef,
+        );
 
-        $response = Http::post($endpoint, $data);
-        $responseData = $response->json();
-
-        if ($responseData['resultCode'] == 0) {
-            // Lưu thông tin giao dịch
-            Transaction::create([
-                'order_id' => $order->id,
-                'transaction_id' => $orderId,
-                'amount' => $amount,
-                'status' => 'pending',
-            ]);
-
-            return redirect($responseData['payUrl']);
+        ksort($inputData);
+        $query = "";
+        $i = 0;
+        $hashdata = "";
+        foreach ($inputData as $key => $value) {
+            if ($i == 1) {
+                $hashdata .= '&' . urlencode($key) . "=" . urlencode($value);
+            } else {
+                $hashdata .= urlencode($key) . "=" . urlencode($value);
+                $i = 1;
+            }
+            $query .= urlencode($key) . "=" . urlencode($value) . '&';
         }
 
-        return redirect()->back()->with('error', 'Có lỗi xảy ra khi tạo giao dịch MoMo');
+        $vnp_Url = $vnp_Url . "?" . $query;
+        if (isset($vnp_HashSecret)) {
+            $vnpSecureHash =   hash_hmac('sha512', $hashdata, $vnp_HashSecret);
+            $vnp_Url .= 'vnp_SecureHash=' . $vnpSecureHash;
+        }
+
+        return redirect($vnp_Url);
     }
 
-    public function momoReturn(Request $request)
+    public function vnpayReturn(Request $request)
     {
-        // Xử lý kết quả trả về từ MoMo
-        if ($request->resultCode == '0') {
-            $orderId = $request->orderId;
-            $transactionId = $request->transId;
+        if ($request->vnp_ResponseCode == '00') {
+            $orderId = $request->vnp_TxnRef;
+            $order = Order::findOrFail($orderId);
             
-            $transaction = Transaction::where('transaction_id', $orderId)->first();
-            if ($transaction) {
-                $transaction->status = 'completed';
-                $transaction->save();
+            Transaction::create([
+                'order_id' => $orderId,
+                'transaction_id' => $request->vnp_TransactionNo,
+                'amount' => $request->vnp_Amount / 100,
+                'status' => 'completed',
+            ]);
 
-                $order = Order::find($transaction->order_id);
-                $order->status_payment = Order::STATUS_PAYMENT_PAID;
-                $order->save();
+            $order->status_payment = Order::STATUS_PAYMENT_PAID;
+            $order->save();
 
-                return redirect()->route('order.success', $order->id);
-            }
+            return redirect()->route('order.success', $orderId);
         }
 
         return redirect()->route('order.failure');
-    }
-
-    public function momoIPN(Request $request)
-    {
-        // Xử lý IPN (Instant Payment Notification) từ MoMo
-        $secretKey = 'YOUR_SECRET_KEY'; // Cùng secret key ở trên
-
-        // Kiểm tra chữ ký
-        $rawHash = "accessKey=" . $request->accessKey . "&amount=" . $request->amount . "&extraData=" . $request->extraData . "&ipnUrl=" . $request->ipnUrl . "&orderId=" . $request->orderId . "&orderInfo=" . $request->orderInfo . "&partnerCode=" . $request->partnerCode . "&redirectUrl=" . $request->redirectUrl . "&requestId=" . $request->requestId . "&requestType=" . $request->requestType;
-        $signature = hash_hmac("sha256", $rawHash, $secretKey);
-
-        if ($signature != $request->signature) {
-            return response()->json([
-                'message' => 'Invalid signature',
-            ], 400);
-        }
-        if ($request->resultCode == '0') {
-            $orderId = $request->orderId;
-            $transactionId = $request->transId;
-            
-            $transaction = Transaction::where('transaction_id', $orderId)->first();
-            if ($transaction) {
-                $transaction->status = 'completed';
-                $transaction->save();
-
-                $order = Order::find($transaction->order_id);
-                $order->status_payment = Order::STATUS_PAYMENT_PAID;
-                $order->save();
-            }
-        }
-
-        return response()->json([
-            'message' => 'IPN processed successfully',
-        ]);
     }
 }

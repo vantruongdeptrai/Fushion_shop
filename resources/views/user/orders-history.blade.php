@@ -16,7 +16,6 @@
                 <p>Thanh toán: {{ $order->status_payment }}</p>
                 <h3>Sản phẩm:</h3>
                 <ul>
-
                     <table class="table">
                         <thead>
                             <tr>

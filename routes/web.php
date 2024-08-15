@@ -28,7 +28,6 @@ use App\Http\Controllers\BannerController;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
-//#9VLLLRG8
 Route::resource('banners', BannerController::class);
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/product-list', [HomeController::class, 'listProduct'])->name('product-list');
@@ -85,7 +84,6 @@ Route::prefix('admin')
         Route::post('orders/{order}/send-invoice', [\App\Http\Controllers\Admin\OrderController::class, 'sendInvoiceEmail'])->name('orders.send-invoice');
     });
 
-    //Thanh toán MOMO
-    Route::get('/momo-return', [OrderController::class, 'momoReturn'])->name('momo.return');
-    Route::post('/momo-ipn', [OrderController::class, 'momoIPN'])->name('momo.ipn');
-    Route::post('/momo-checkout', [OrderController::class, 'momoCheckout'])->name('momo.checkout');
+    Route::post('/apply-coupon', [OrderController::class, 'applyCoupon'])->name('apply.coupon');
+    Route::get('/vnpay-return', [OrderController::class, 'vnpayReturn'])->name('vnpay.return');
+    Route::post('/vnpay',[OrderController::class,'redirectToVNPay'])->name('vnpay');

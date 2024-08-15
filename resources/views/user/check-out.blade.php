@@ -14,7 +14,7 @@
 
 
 <!-- Checkout Start -->
-<form action="{{route('order.save')}}" method="post" >
+<form action="{{route('order.save')}}" method="post">
     @csrf
     <div class="checkout">
         <div class="container">
@@ -116,29 +116,17 @@
                             <div class="payment-methods">
                                 <div class="payment-method" id="payment-form">
                                     <div class="custom-control custom-radio">
-                                        <input type="radio" class="custom-control-input" id="payment-momo" name="payment" value="momo">
-                                        <label class="custom-control-label" for="payment-momo">MoMo</label>
+                                        <input type="radio" class="custom-control-input"
+                                            name="payment" value="i_bank">
+                                        <label class="custom-control-label">Internet Banking</label>
                                     </div>
                                 </div>
+                                
                                 <div class="payment-method">
                                     <div class="custom-control custom-radio">
-                                        <input type="radio" class="custom-control-input" id="payment-2" name="payment">
-                                        <label class="custom-control-label" for="payment-2">Payoneer</label>
-                                    </div>
-                                </div>
-
-                                <div class="payment-method">
-                                    <div class="custom-control custom-radio">
-                                        <input type="radio" class="custom-control-input" id="payment-4" name="payment">
-                                        <label class="custom-control-label" for="payment-4">Direct Bank Transfer</label>
-                                    </div>
-                                </div>
-                                <div class="payment-method">
-                                    <div class="custom-control custom-radio">
-                                        <input type="radio" class="custom-control-input" id="payment-5" name="payment">
+                                        <input type="radio" class="custom-control-input" id="payment-5" name="payment" value="cash_on_delivery">
                                         <label class="custom-control-label" for="payment-5">Cash on Delivery</label>
                                     </div>
-
                                 </div>
                             </div>
                             <div class="checkout-btn">
@@ -151,13 +139,13 @@
                             </div>
                         @endif
                         @if(session('error'))
-                        <br>
+                            <br>
                             <div class="alert alert-danger">
                                 {{session('error')}}
                             </div>
                         @endif
                         @if ($errors->any())
-                        <br>
+                            <br>
                             <div class="alert alert-danger">
                                 <ul>
                                     @foreach ($errors->all() as $error)
@@ -177,26 +165,26 @@
                                 @php
                                     $totalPrice = 0;
                                 @endphp
-                                @foreach ($cart->cartItems as $item)
+                                @foreach ($cartItem as $item)
                                     <div>
                                         <img src="{{asset($item->productVariant->image)}}" alt="Image" width="60"
                                             height="60">
-                                        @foreach ($product as $product_item)
-                                            Name: <span>{{$product_item->name}}</span>
-                                        @endforeach
+
+                                        Name: <span>{{$item->productVariant->product->name}}</span>
+
                                         Color: <span>{{ $item->productVariant->color->name}}</span>
                                         Size: <span>{{ $item->productVariant->size->name }}</sp>
                                             @php
                                                 // Tính giá tiền cho từng sản phẩm
-                                                $price = $product_item->price_sale * $item->quantity;
+                                                $price = $item->productVariant->product->price_sale * $item->quantity;
                                                 // Cộng dồn vào tổng giá tiền
                                                 $totalPrice += $price;
                                             @endphp
-                                            @foreach ($product as $product_item)
-                                                <br>Price:
-                                                <span>{{ number_format($product_item->price_sale * $item->quantity) }}
-                                                    VNĐ</span>
-                                            @endforeach
+
+                                            <br>Price:
+                                            <span>{{ number_format($item->productVariant->product->price_sale * $item->quantity) }}
+                                                VNĐ</span>
+
                                     </div><br>
                                     <hr>
                                 @endforeach
@@ -218,22 +206,5 @@
     </div>
 </form>
 <!-- Checkout End -->
-<script>
-document.getElementById('payment-form').addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    var selectedPayment = document.querySelector('input[name="payment"]:checked');
-    
-    if (selectedPayment && selectedPayment.value === 'momo') {
-        // Nếu chọn MoMo, gửi form đến route xử lý MoMo
-        this.action = "{{ route('momo.checkout') }}";
-    } else {
-        // Xử lý các phương thức thanh toán khác ở đây
-        alert('Vui lòng chọn MoMo để thanh toán');
-        return;
-    }
-    
-    this.submit();
-});
-</script>
+
 @endsection
